@@ -13,3 +13,5 @@ shapely
 pandas
 parsley
 requests
+flask
+pymysql
