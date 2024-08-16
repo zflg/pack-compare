@@ -77,7 +77,7 @@ def get_ocr(sample_no):
     Returns:
         Ocr
     """
-    sql = "SELECT * FROM `ocr` WHERE `sample_no` = %s"
+    sql = "SELECT * FROM `spl_pack_compare_ocr` WHERE `sample_no` = %s"
     cursor = connection.cursor()
     cursor.execute(sql, sample_no)
     ocr = cursor.fetchone()
@@ -134,7 +134,7 @@ def get_sample(sample_no):
     cursor.close()
     if sample is None:
         return None
-    return Sample(sample['sample_no'], sample['metadata'])
+    return Sample(sample['sample_no'], sample['metadata'], sample['ocr_checked'])
 
 
 def save_sample_ocr_checked(sample_no):
