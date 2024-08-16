@@ -12,7 +12,6 @@ from kie import FoodPackKIE
 import os
 import time
 import base64
-import paddle_ocr
 
 app = Flask(__name__)
 baiduClient = BaiduClient()
@@ -44,6 +43,14 @@ def save_image(base64_image):
     return file_path
 
 
+def get_output_file_path(input_file_path):
+    output_file_path = input_file_path.replace('ocr_images', 'ocr_images_output')
+    output_dir = '/'.join(output_file_path.split('/')[:-1])
+    if os.path.exists(output_dir) is False:
+        os.makedirs(output_dir)
+    return output_file_path
+
+
 def orc_check(sample_no, extract_info):
     """
     Compare the OCR result with the database sample metadata.
@@ -58,7 +65,6 @@ def orc_check(sample_no, extract_info):
     sample = get_sample(sample_no)
     # 如果样本不存在，则返回False
     if sample is None:
-        print(f"Sample {sample_no} not found.")
         return False
     # 对比生产商
     producer = sample.get_producer()
@@ -78,14 +84,6 @@ def orc_check(sample_no, extract_info):
     return True
 
 
-def get_output_file_path(input_file_path):
-    output_file_path = input_file_path.replace('ocr_images', 'ocr_images_output')
-    output_dir = '/'.join(output_file_path.split('/')[:-1])
-    if os.path.exists(output_dir) is False:
-        os.makedirs(output_dir)
-    return output_file_path
-
-
 @app.route('/ocr/predict', methods=['POST'])
 def predict():
     # 从请求中获取JSON数据
@@ -96,16 +94,10 @@ def predict():
     image_path = save_image(base64_image)
     output_path = get_output_file_path(image_path)
     # BAIDU OCR预测
-    # prediction = baiduClient.accuracy_ocr(base64_image)
-    # baiduClient.draw_ocr_box_txt(image_path, output_path, prediction)
-    # extract_info = FoodPackKIE(prediction).run()
-    # save_ocr(Ocr(sample_no, image_path, OcrType.BAIDU_OCR,prediction, extract_info))
-    # PADDLE OCR预测，可画出识别框
-    prediction = paddle_ocr.predict(image_path)
+    prediction = baiduClient.accuracy_ocr(base64_image)
     baiduClient.draw_ocr_box_txt(image_path, output_path, prediction)
     extract_info = FoodPackKIE(prediction).run()
-    print(extract_info)
-    save_ocr(Ocr(sample_no, image_path, OcrType.PADDLE_OCR, prediction, extract_info))
+    save_ocr(Ocr(sample_no, image_path, OcrType.BAIDU_OCR,prediction, extract_info))
     # 将OCR的结果和数据库比较
     ocr_checked = orc_check(sample_no, extract_info)
     # 将预测结果作为响应返回

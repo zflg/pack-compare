@@ -87,9 +87,10 @@ def image_analysis(image: numpy.ndarray):
     return image
 
 
-def predict(input_path, output_path):
+def predict(input_path, output_path=None):
     # # 将./data/input下的所有文件进行OCR识别
     result = pipeline.predict({"input_path": input_path})
+    print(result['dt_polys'])
     if output_path is not None:
         draw_img = draw_ocr_box_txt(result['original_image'], result['dt_polys'], result["rec_text"])
         cv2.imwrite(output_path, draw_img[:, :, ::-1])
