@@ -11,7 +11,7 @@ import numpy as np
 import utils
 import cv2
 from setting import BAIDU_APP_ID, BAIDU_API_KEY, BAIDU_SECRET_KEY
-from paddlex.pipelines.OCR.utils import draw_ocr_box_txt
+from draw.utils import draw_ocr_box_txt
 
 
 class BaiduClient:
