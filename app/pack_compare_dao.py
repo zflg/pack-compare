@@ -29,21 +29,23 @@ class OcrType(Enum):
 
 class Ocr:
 
-    def __init__(self, sample_no, image_path, ocr_type: OcrType, ocr_result, extract_info):
+    def __init__(self, sample_no, image_path, output_path, ocr_type: OcrType, ocr_result, extract_info):
         self.cursor = connection.cursor()
         self.sample_no = sample_no
-        self.ocr_type = ocr_type
         self.image_path = image_path
+        self.output_path = output_path
+        self.ocr_type = ocr_type
         self.ocr_result = ocr_result
         self.extract_info = extract_info
 
 
 class Sample:
 
-    def __init__(self, sample_no, metadata):
+    def __init__(self, sample_no, metadata, ocr_checked):
         self.cursor = connection.cursor()
         self.sample_no = sample_no
         self.metadata = json.loads(metadata)
+        self.ocr_checked = ocr_checked
 
     def get_producer(self):
         """
@@ -83,7 +85,7 @@ def get_ocr(sample_no):
     cursor.close()
     if ocr is None:
         return None
-    return Ocr(ocr['sample_no'], ocr['image_path'], ocr['ocr_type'], ocr['ocr_result'], ocr['extract_info'])
+    return Ocr(ocr['sample_no'], ocr['image_path'], ocr['output_path'], ocr['ocr_type'], ocr['ocr_result'], ocr['extract_info'])
 
 
 def save_ocr(ocr):
@@ -94,6 +96,7 @@ def save_ocr(ocr):
     """
     sql = ("INSERT INTO `spl_pack_compare_ocr` (`sample_no`,"
            "`image_path`,"
+           "`output_path`,"
            "`ocr_type`,"
            "`ocr_result`,"
            "`extract_info`,"
@@ -102,6 +105,7 @@ def save_ocr(ocr):
     values = (
         ocr.sample_no,
         ocr.image_path,
+        ocr.output_path,
         ocr.ocr_type.value,
         json.dumps(ocr.ocr_result, ensure_ascii=False),
         json.dumps(ocr.extract_info, ensure_ascii=False)

@@ -104,13 +104,13 @@ def predict():
     # prediction = baiduClient.accuracy_ocr(base64_image)
     # baiduClient.draw_ocr_box_txt(image_path, output_path, prediction)
     # extract_info = FoodPackKIE(prediction).run()
-    # save_ocr(Ocr(sample_no, image_path, OcrType.BAIDU_OCR,prediction, extract_info))
+    # save_ocr(Ocr(sample_no, image_path, output_path, OcrType.BAIDU_OCR,prediction, extract_info))
     # PADDLE OCR预测，可画出识别框
     prediction = paddle_ocr.predict(image_path)
     baiduClient.draw_ocr_box_txt(image_path, output_path, prediction)
     extract_info = FoodPackKIE(prediction).run()
     print(extract_info)
-    save_ocr(Ocr(sample_no, image_path, OcrType.PADDLE_OCR, prediction, extract_info))
+    save_ocr(Ocr(sample_no, image_path, output_path, OcrType.PADDLE_OCR, prediction, extract_info))
     # 将OCR的结果和数据库比较
     ocr_checked = orc_check(sample_no, extract_info)
     # 将预测结果作为响应返回

@@ -15,8 +15,8 @@ import base64
 
 app = Flask(__name__)
 baiduClient = BaiduClient()
-IMAGE_ROOT = 'E:/data/ocr_images/'
-# IMAGE_ROOT = '/root/pack-compare/data/ocr_images/'
+# IMAGE_ROOT = 'E:/data/ocr_images/'
+IMAGE_ROOT = '/root/pack-compare/data/ocr_images/'
 
 
 def predict_with_ai_model(data):
@@ -106,7 +106,7 @@ def predict():
     prediction = baiduClient.accuracy_ocr(base64_image)
     baiduClient.draw_ocr_box_txt(image_path, output_path, prediction)
     extract_info = FoodPackKIE(prediction).run()
-    save_ocr(Ocr(sample_no, image_path, OcrType.BAIDU_OCR,prediction, extract_info))
+    save_ocr(Ocr(sample_no, image_path, output_path, OcrType.BAIDU_OCR,prediction, extract_info))
     # 将OCR的结果和数据库比较
     ocr_checked = orc_check(sample_no, extract_info)
     # 将预测结果作为响应返回
