@@ -6,7 +6,7 @@
 # @version : V1
 from flask import Flask, request, jsonify
 from client import BaiduClient
-from pack_compare_dao import Ocr, OcrType, save_ocr, get_sample, save_sample_ocr_checked
+from pack_compare_dao import Ocr, OcrType, save_ocr, get_ocr, get_sample, save_sample_ocr_checked
 from kie import FoodPackKIE
 
 import os
@@ -66,6 +66,9 @@ def orc_check(sample_no, extract_info):
     # 如果样本不存在，则返回False
     if sample is None:
         return False
+    # 如果已经checked，则返回True
+    if sample.ocr_checked == 1:
+        return True
     # 对比生产商
     producer = sample.get_producer()
     if producer is not None and producer.strip() not in extract_info['producer']:
@@ -90,6 +93,11 @@ def predict():
     data = request.get_json()
     base64_image = data['image']
     sample_no = data['sampleNo']
+    # 检查是否已经checked
+    ocr = get_ocr(sample_no)
+    if ocr is not None:
+        orc_check(sample_no, ocr.extract_info)
+        return jsonify({"ocr_checked": True, "extract_info": ocr.extract_info})
     # 保存图片
     image_path = save_image(base64_image)
     output_path = get_output_file_path(image_path)

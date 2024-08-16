@@ -40,10 +40,11 @@ class Ocr:
 
 class Sample:
 
-    def __init__(self, sample_no, metadata):
+    def __init__(self, sample_no, metadata, ocr_checked):
         self.cursor = connection.cursor()
         self.sample_no = sample_no
         self.metadata = json.loads(metadata)
+        self.ocr_checked = ocr_checked
 
     def get_producer(self):
         """
@@ -81,7 +82,9 @@ def get_ocr(sample_no):
     cursor.execute(sql, sample_no)
     ocr = cursor.fetchone()
     cursor.close()
-    return Ocr(ocr['sample_no'], ocr['image_path'], ocr['ocr_type'], ocr['ocr_result'])
+    if ocr is None:
+        return None
+    return Ocr(ocr['sample_no'], ocr['image_path'], ocr['ocr_type'], ocr['ocr_result'], ocr['extract_info'])
 
 
 def save_ocr(ocr):
@@ -129,6 +132,8 @@ def get_sample(sample_no):
     cursor.execute(sql, sample_no)
     sample = cursor.fetchone()
     cursor.close()
+    if sample is None:
+        return None
     return Sample(sample['sample_no'], sample['metadata'])
 
 
