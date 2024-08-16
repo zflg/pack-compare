@@ -16,3 +16,10 @@ MYSQL_DATABASE = 'aglims'
 MYSQL_USER = 'root'
 MYSQL_PASSWORD = 'root'
 MYSQL_PORT = 3306
+
+# 线上数据库连接信息
+# MYSQL_HOST = 'cd-cynosdbmysql-grp-cbpzo712.sql.tencentcdb.com'
+# MYSQL_DATABASE = 'aglims'
+# MYSQL_USER = 'root'
+# MYSQL_PASSWORD = 'Bzkj13699416021!'
+# MYSQL_PORT = 22285
