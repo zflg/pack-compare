@@ -16,7 +16,7 @@ import paddle_ocr
 
 app = Flask(__name__)
 baiduClient = BaiduClient()
-IMAGE_ROOT = 'E:/data/ocr_images/'
+IMAGE_ROOT = 'E:/data/ocr_images'
 
 
 def predict_with_ai_model(data):
