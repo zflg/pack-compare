@@ -15,8 +15,8 @@ import base64
 
 app = Flask(__name__)
 baiduClient = BaiduClient()
-# IMAGE_ROOT = 'E:/data/ocr_images/'
-IMAGE_ROOT = '/root/pack-compare/data/ocr_images/'
+IMAGE_ROOT = 'E:/data/ocr_images/'
+# IMAGE_ROOT = '/root/pack-compare/data/ocr_images/'
 
 
 def predict_with_ai_model(data):
@@ -115,4 +115,4 @@ def predict():
 
 if __name__ == '__main__':
     # 运行Flask应用，监听8000端口
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    app.run(port=8000, debug=True)
