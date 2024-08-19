@@ -79,6 +79,7 @@ def get_ocr(sample_no):
         Ocr
     """
     sql = "SELECT * FROM `spl_pack_compare_ocr` WHERE `sample_no` = %s"
+    connection.ping(reconnect=True)
     cursor = connection.cursor()
     cursor.execute(sql, sample_no)
     ocr = cursor.fetchone()
@@ -111,6 +112,7 @@ def save_ocr(ocr):
         json.dumps(ocr.ocr_result, ensure_ascii=False),
         json.dumps(ocr.extract_info, ensure_ascii=False)
     )
+    connection.ping(reconnect=True)
     cursor = connection.cursor()
     try:
         cursor.execute(sql, values)
@@ -132,6 +134,7 @@ def get_sample(sample_no):
         Sample
     """
     sql = "SELECT * FROM `spl_sample` WHERE `sample_no` = %s"
+    connection.ping(reconnect=True)
     cursor = connection.cursor()
     cursor.execute(sql, sample_no)
     sample = cursor.fetchone()
@@ -149,6 +152,7 @@ def save_sample_ocr_checked(sample_no):
         sample_no
     """
     sql = ("UPDATE `spl_sample` SET `ocr_checked` = 1, `ocr_checked_time` = NOW() WHERE `sample_no` = %s")
+    connection.ping(reconnect=True)
     cursor = connection.cursor()
     try:
         cursor.execute(sql, sample_no)
