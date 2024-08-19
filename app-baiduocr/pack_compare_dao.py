@@ -102,7 +102,7 @@ def save_ocr(ocr):
            "`ocr_result`,"
            "`extract_info`,"
            "`create_time`,"
-           "`update_time`) VALUES (%s, %s, %s, %s, %s, NOW(), NOW())")
+           "`update_time`) VALUES (%s, %s, %s, %s, %s, %s, NOW(), NOW())")
     values = (
         ocr.sample_no,
         ocr.image_path,
