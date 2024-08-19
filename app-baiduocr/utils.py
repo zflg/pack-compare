@@ -84,6 +84,16 @@ def extract_sc_license(boarding_boxes: list):
     return valid_pairs
 
 
+def is_special_char(char):
+    return not (
+            ('\u4e00' <= char <= '\u9fff')  # 汉字字符的Unicode范围
+            or ('0' <= char <= '9')
+            or ('a' <= char <= 'z')
+            or ('A' <= char <= 'Z')
+            or char in ['(', ")", '（', "）"]
+    )
+
+
 def extract_producer(boarding_boxes: list):
     """
     从boarding_boxes中提取生产商信息
@@ -99,10 +109,6 @@ def extract_producer(boarding_boxes: list):
             or not boarding_boxes[0].get('words')):
         return []
 
-    # 定义用于检测特殊字符的函数（这里简单认为是非汉字字符）
-    def is_special_char(char):
-        return not '\u4e00' <= char <= '\u9fff'  # 汉字字符的Unicode范围
-
     # 定义生产商的关键字
     producer_keys = {'生产商', '生产厂家', '生产单位', '生产者', '制造商', '制造单位', '委托方', "委托单位"}
 
@@ -111,34 +117,22 @@ def extract_producer(boarding_boxes: list):
 
     # 遍历每个box
     for box in boarding_boxes:
-        if any(key in box['words'] for key in producer_keys):
-            word = box['words']
-
-            i = 0
-            while i < len(word):
-                # 找到“生产商”的位置
-                if word[i:i + 3] in producer_keys:
-                    # 跳过“生产商”这三个字
-                    i += 3
-
-                    # 寻找紧随其后的第一个汉字
-                    while i < len(word) and is_special_char(word[i]):
-                        i += 1
-
-                    if i < len(word) and not is_special_char(word[i]):
-                        # 开始记录汉字
-                        start_i = i
-
-                        # 寻找紧随汉字后的第一个特殊字符
-                        while i < len(word) and not is_special_char(word[i]):
-                            i += 1
-
-                            # 提取并记录汉字字符串
-                        if start_i < i:
-                            extracted_data.append(word[start_i:i])
-                else:
-                    # 如果没有找到“生产商”，则继续遍历
+        for key in producer_keys:
+            if key in box['words']:
+                word = box['words']
+                # 找到key在word中的位置并跳过key
+                i = word.index(key) + len(key)
+                # 寻找紧随其后的第一个有效字符
+                while i < len(word) and is_special_char(word[i]):
                     i += 1
+                # 开始记录有效字符
+                start_i = i
+                # 寻找紧随有效字符后的第一个特殊字符
+                while i < len(word) and not is_special_char(word[i]):
+                    i += 1
+                # 提取并记录有效字符串
+                if start_i < i:
+                    extracted_data.append(word[start_i:i])
 
     return extracted_data
 
@@ -157,12 +151,6 @@ def extract_expiration_time(boarding_boxes: list):
             or len(boarding_boxes) == 0
             or not boarding_boxes[0].get('words')):
         return []
-    # 拼接所有words为一个长字符串
-    long_string = ''.join(box['words'] for box in boarding_boxes)
-
-    # 定义用于检测特殊字符的函数（这里简单认为是非汉字字符）
-    def is_special_char(char):
-        return not (('\u4e00' <= char <= '\u9fff') or ('0' <= char <= '9'))  # 汉字和阿拉伯字符的Unicode范围
 
     # 用于记录结果的列表
     extracted_data = []
@@ -170,39 +158,33 @@ def extract_expiration_time(boarding_boxes: list):
     # 定义结束标识
     end_markers = {'年', '月', '日', '天', '时', '分', '秒'}
 
-    # 遍历长字符串
-    i = 0
-    while i < len(long_string):
-        # 找到“生产商”的位置
-        if long_string[i:i + 3] == '保质期':
+    # 定义保质期关键字
+    expiration_time_keys = {'保质期', '保质日期', '保质时间', '有效期', '有效日期', '有效时间'}
 
-            # 跳过“生产商”这三个字
-            i += 3
-
-            # 寻找紧随其后的第一个有效字符
-            while i < len(long_string) and is_special_char(long_string[i]):
-                i += 1
-
-            if i < len(long_string) and not is_special_char(long_string[i]):
-                # 开始记录汉字
+    # 遍历每个box
+    for box in boarding_boxes:
+        for key in expiration_time_keys:
+            if key in box['words']:
+                word = box['words']
+                # 找到key在word中的位置并跳过key
+                i = word.index(key) + len(key)
+                # 寻找紧随其后的第一个有效字符
+                while i < len(word) and is_special_char(word[i]):
+                    i += 1
+                # 开始记录有效字符
                 start_i = i
-                # 取最近的12个字符找到最后的一个结束标识
-                find_end = False
-                for end_i in range(i + 10, i, -1):
-                    if long_string[end_i] in end_markers:
-                        i = end_i + 1
-                        find_end = True
-                        break
-                # 如果没有找到结束字符，则找有效字符
-                if not find_end:
-                    while i < len(long_string) and not is_special_char(long_string[i]):
-                        i += 1
-                # 提取并记录汉字字符串
+                # 寻找紧随有效字符后的第一个特殊字符
+                while i < len(word) and not is_special_char(word[i]):
+                    i += 1
+                # 提取并记录有效字符串
                 if start_i < i:
-                    extracted_data.append(long_string[start_i:i])
-        else:
-            # 如果没有找到“生产商”，则继续遍历
-            i += 1
+                    # 查看最后一个字符是否是结束标识，不是则取最近的8个字符找结束标识
+                    if word[i - 1] not in end_markers:
+                        for end_i in range(start_i + 8, start_i, -1):
+                            if word[end_i] in end_markers:
+                                i = end_i + 1
+                                break
+                    extracted_data.append(word[start_i:i])
 
     return extracted_data
 
@@ -219,15 +201,16 @@ if __name__ == '__main__':
     boarding_boxes = [
         {'words': '苏俄u护发素的远射得分吉萨大'},
         {'words': '无关信息'},
-        {'words': '生产商ss数据撒旦发生ll生产商   又一组数据789'},
-        {'words': '生产商:但这里没有汉字数据'},
+        {'words': '生产商：数据撒旦发生ll生产商   又一组数据789'},
+        {'words': '浙江生产单位:但这里没有汉字数据'},
     ]
     print(extract_producer(boarding_boxes))
 
     boarding_boxes = [
         {'words': '苏俄u护发素的远射得分吉萨大'},
         {'words': '无关信息'},
-        {'words': '保质期：2年零3个月'},
-        {'words': '生产商:但这里没有汉字数据'},
+        {'words': '保质期：12个月零一日生产日期：2024年8月11日'},
+        {'words': '有限公司保质日期：12个月'},
+        {'words': '生产日期：（年/月/日）'},
     ]
     print(extract_expiration_time(boarding_boxes))
