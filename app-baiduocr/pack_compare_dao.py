@@ -82,6 +82,7 @@ def get_ocr(sample_no):
     cursor = connection.cursor()
     cursor.execute(sql, sample_no)
     ocr = cursor.fetchone()
+    connection.commit()
     cursor.close()
     if ocr is None:
         return None
@@ -134,6 +135,7 @@ def get_sample(sample_no):
     cursor = connection.cursor()
     cursor.execute(sql, sample_no)
     sample = cursor.fetchone()
+    connection.commit()
     cursor.close()
     if sample is None:
         return None
