@@ -127,7 +127,7 @@ def predict():
     # 将OCR的结果和数据库比较
     ocr_checked = orc_check(sample_no, extract_info)
     # 将预测结果作为响应返回
-    return jsonify({"ocr_checked": ocr_checked, "extract_info": extract_info})
+    return jsonify({"ocr_checked": ocr_checked, "output_path": output_path, "extract_info": extract_info})
 
 
 if __name__ == '__main__':

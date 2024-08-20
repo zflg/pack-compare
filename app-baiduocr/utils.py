@@ -191,9 +191,9 @@ def extract_expiration_time(boarding_boxes: list):
 
 if __name__ == '__main__':
     boarding_boxes = [
-        {'words': 'Hello SC123456789012 world'},
+        {'words': 'Hello SC12345678901234 world'},
         {'words': 'This is 134 and then 58'},
-        {'words': 'No SC here, just 901234567'},
+        {'words': 'No SC here, just 90123456789'},
         {'words': 'Another SC123 with 4567'}
     ]
     print(extract_sc_license(boarding_boxes))
