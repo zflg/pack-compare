@@ -58,7 +58,7 @@ def extract_sc_license(boarding_boxes: list):
 
         # 提取SC紧跟的数字
         import re
-        sc_matches = re.findall(r'SC(\d{1,12})', word)
+        sc_matches = re.findall(r'SC(\d{1,14})', word)
         for match in sc_matches:
             sc_numbers.append('SC' + match)
 
@@ -70,12 +70,12 @@ def extract_sc_license(boarding_boxes: list):
     # 尝试拼接SC数字和纯数字以形成长度为14的字符串
     valid_pairs = []
     for sc_num in sc_numbers:
-        if len(sc_num) == 14:  # 如果SC数字已经足够长，直接添加
+        if len(sc_num) == 16:  # 如果SC数字已经足够长，直接添加
             valid_pairs.append(sc_num)
         else:
             for pure_num in pure_numbers:
                 tmp = sc_num + pure_num
-                if len(tmp) == 14:
+                if len(tmp) == 16:
                     valid_pairs.append(tmp)
                     # 可选：从pure_numbers中移除已使用的数字，以避免重复使用
                     pure_numbers.remove(pure_num)
