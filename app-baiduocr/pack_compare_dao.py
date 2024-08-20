@@ -78,7 +78,7 @@ def get_ocr(sample_no):
     Returns:
         Ocr
     """
-    sql = "SELECT * FROM `spl_pack_compare_ocr` WHERE `sample_no` = %s"
+    sql = "SELECT * FROM `spl_pack_compare_ocr` WHERE `sample_no` = %s order by id desc limit 1"
     connection.ping(reconnect=True)
     cursor = connection.cursor()
     cursor.execute(sql, sample_no)
