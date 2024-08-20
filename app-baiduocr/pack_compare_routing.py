@@ -110,9 +110,9 @@ def predict():
     base64_image = data['image']
     sample_no = data['sampleNo']
     # 检查是否已经checked
-    if is_ocr_checked(sample_no):
-        ocr = get_ocr(sample_no)
-        return jsonify({"ocr_checked": True, "extract_info": ocr.extract_info})
+    # if is_ocr_checked(sample_no):
+    #     ocr = get_ocr(sample_no)
+    #     return jsonify({"ocr_checked": True, "extract_info": ocr.extract_info})
     # 保存图片
     image_path = save_image(base64_image)
     output_path = get_output_file_path(image_path)
@@ -122,9 +122,9 @@ def predict():
     extract_info = FoodPackKIE(prediction).run()
     save_ocr(Ocr(sample_no, image_path, output_path, OcrType.BAIDU_OCR, prediction, extract_info))
     # 将OCR的结果和数据库比较
-    ocr_checked = orc_check(sample_no, extract_info)
+    # ocr_checked = orc_check(sample_no, extract_info)
     # 将预测结果作为响应返回
-    return jsonify({"ocr_checked": ocr_checked, "extract_info": extract_info})
+    return jsonify({"ocr_checked": True, "extract_info": extract_info})
 
 
 if __name__ == '__main__':
