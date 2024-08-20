@@ -16,6 +16,8 @@ import base64
 app = Flask(__name__)
 baiduClient = BaiduClient()
 IMAGE_ROOT = 'E:/data/ocr_images'
+
+
 # IMAGE_ROOT = '/root/pack-compare/data/ocr_images'
 
 
@@ -88,6 +90,21 @@ def orc_check(sample_no, extract_info):
     return True
 
 
+def is_ocr_checked(sample_no):
+    """
+    Check if the OCR result has been checked.
+    Args:
+        sample_no:
+
+    Returns:
+        ocr_checked
+    """
+    sample = get_sample(sample_no)
+    if sample is None:
+        return False
+    return sample.ocr_checked == 1
+
+
 @app.route('/ocr/predict', methods=['POST'])
 def predict():
     # 从请求中获取JSON数据
@@ -95,9 +112,8 @@ def predict():
     base64_image = data['image']
     sample_no = data['sampleNo']
     # 检查是否已经checked
-    ocr = get_ocr(sample_no)
-    if ocr is not None:
-        orc_check(sample_no, ocr.extract_info)
+    if is_ocr_checked(sample_no):
+        ocr = get_ocr(sample_no)
         return jsonify({"ocr_checked": True, "extract_info": ocr.extract_info})
     # 保存图片
     image_path = save_image(base64_image)
@@ -106,7 +122,7 @@ def predict():
     prediction = baiduClient.accuracy_ocr(base64_image)
     baiduClient.draw_ocr_box_txt(image_path, output_path, prediction)
     extract_info = FoodPackKIE(prediction).run()
-    save_ocr(Ocr(sample_no, image_path, output_path, OcrType.BAIDU_OCR,prediction, extract_info))
+    save_ocr(Ocr(sample_no, image_path, output_path, OcrType.BAIDU_OCR, prediction, extract_info))
     # 将OCR的结果和数据库比较
     ocr_checked = orc_check(sample_no, extract_info)
     # 将预测结果作为响应返回

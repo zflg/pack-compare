@@ -77,6 +77,20 @@ def orc_check(sample_no, extract_info):
 
     return True
 
+def is_ocr_checked(sample_no):
+    """
+    Check if the OCR result has been checked.
+    Args:
+        sample_no:
+
+    Returns:
+        ocr_checked
+    """
+    sample = get_sample(sample_no)
+    if sample is None:
+        return False
+    return sample.ocr_checked == 1
+
 
 def get_output_file_path(input_file_path):
     output_file_path = input_file_path.replace('ocr_images', 'ocr_images_output')
@@ -93,9 +107,8 @@ def predict():
     base64_image = data['image']
     sample_no = data['sampleNo']
     # 检查是否已经checked
-    ocr = get_ocr(sample_no)
-    if ocr is not None:
-        orc_check(sample_no, ocr.extract_info)
+    if is_ocr_checked(sample_no):
+        ocr = get_ocr(sample_no)
         return jsonify({"ocr_checked": True, "extract_info": ocr.extract_info})
     # 保存图片
     image_path = save_image(base64_image)
