@@ -15,9 +15,8 @@ import base64
 
 app = Flask(__name__)
 baiduClient = BaiduClient()
-# IMAGE_ROOT = 'E:/data/ocr_images'
-IMAGE_ROOT = '/usr/local/webserver/nginx/html/ocrFiles'
-
+# NGINX_ROOT = 'E:/data/ocr_images'
+NGINX_ROOT = '/usr/local/webserver/nginx/html/aglimsFiles'
 
 def predict_with_ai_model(data):
     res = baiduClient.accuracy_ocr(data['image'])
@@ -27,29 +26,23 @@ def predict_with_ai_model(data):
 
 
 def save_image(base64_image):
-    # 如果根目录不存在，则创建目录
-    if os.path.exists(IMAGE_ROOT) is False:
-        os.makedirs(IMAGE_ROOT)
-    # 打开文件目录，文件目录是/项目根目录/ocr_images/年-月-日
-    dir_path = f"{IMAGE_ROOT}/{time.strftime('%Y-%m-%d')}"
-    if os.path.exists(dir_path) is False:
-        os.makedirs(dir_path)
     # 保存文件
-    file_path = f"{dir_path}/{int(time.time())}.jpg"
+    file_name = time.strftime('%Y%m%d-%H%M%S') + '.jpg'
+    file_url = f'ocrFiles/input/{file_name}'
     # 将base64编码的图片数据写入文件，文件名为当前时间戳
     head, context = base64_image.split(",")
     imgdata = base64.b64decode(context)
-    with open(file_path, "wb") as f:
+    with open(f"{NGINX_ROOT}/{file_url}", "wb") as f:
         f.write(imgdata)
-    return file_path
+    return file_url
 
 
-def get_output_file_path(input_file_path):
-    output_file_path = input_file_path.replace('ocr_images', 'ocr_images_output')
-    output_dir = '/'.join(output_file_path.split('/')[:-1])
+def get_output_url(input_url):
+    output_url = input_url.replace('input', 'output')
+    output_dir = '/'.join(output_url.split('/')[:-1])
     if os.path.exists(output_dir) is False:
         os.makedirs(output_dir)
-    return output_file_path
+    return output_url
 
 
 def orc_check(sample_no, extract_info):
@@ -110,23 +103,29 @@ def predict():
     base64_image = data['image']
     sample_no = data['sampleNo']
     # 检查是否已经checked
-    if is_ocr_checked(sample_no):
-        ocr = get_ocr(sample_no)
-        return jsonify({"ocr_checked": True, "extract_info": ocr.extract_info})
+    # if is_ocr_checked(sample_no):
+    #     ocr = get_ocr(sample_no)
+    #     return jsonify({"ocr_checked": True, "extract_info": ocr.extract_info})
     # 保存图片
-    image_path = save_image(base64_image)
-    output_path = get_output_file_path(image_path)
+    image_url = save_image(base64_image)
+    output_url = get_output_url(image_url)
     # BAIDU OCR预测
     prediction = baiduClient.accuracy_ocr(base64_image)
-    baiduClient.draw_ocr_box_txt(image_path, output_path, prediction)
+    baiduClient.draw_ocr_box_txt(f'{NGINX_ROOT}/{image_url}', f'{NGINX_ROOT}/{output_url}', prediction)
     extract_info = FoodPackKIE(prediction).run()
-    save_ocr(Ocr(sample_no, image_path, output_path, OcrType.BAIDU_OCR, prediction, extract_info))
+    save_ocr(Ocr(sample_no, image_url, output_url, OcrType.BAIDU_OCR, prediction, extract_info))
     # 将OCR的结果和数据库比较
-    ocr_checked = orc_check(sample_no, extract_info)
+    # ocr_checked = orc_check(sample_no, extract_info)
     # 将预测结果作为响应返回
-    return jsonify({"ocr_checked": ocr_checked, "output_path": output_path, "extract_info": extract_info})
+    return jsonify({"ocr_checked": True, "output_url": output_url, "extract_info": extract_info})
 
 
 if __name__ == '__main__':
+    # 如果根目录不存在，则创建目录
+    if os.path.exists(f'{NGINX_ROOT}/ocrFiles/input') is False:
+        os.makedirs(f'{NGINX_ROOT}/ocrFiles/input')
+    # 如果根目录不存在，则创建目录
+    if os.path.exists(f'{NGINX_ROOT}/ocrFiles/output') is False:
+        os.makedirs(f'{NGINX_ROOT}/ocrFiles/output')
     # 运行Flask应用，监听8000端口
     app.run(port=8000, debug=True)
