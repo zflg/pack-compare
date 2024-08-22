@@ -166,15 +166,20 @@ def extract_expiration_time(boarding_boxes: list):
         for key in expiration_time_keys:
             if key in box['words']:
                 word = box['words']
+                word_len = len(word)
+                # 首先截断生产日期这种干扰
+                position = word.find('生产日期')
+                if position != -1:
+                    word_len = position
                 # 找到key在word中的位置并跳过key
                 i = word.index(key) + len(key)
                 # 寻找紧随其后的第一个有效字符
-                while i < len(word) and is_special_char(word[i]):
+                while i < word_len and is_special_char(word[i]):
                     i += 1
                 # 开始记录有效字符
                 start_i = i
                 # 寻找紧随有效字符后的第一个特殊字符
-                while i < len(word) and not is_special_char(word[i]):
+                while i < word_len and not is_special_char(word[i]):
                     i += 1
                 # 提取并记录有效字符串
                 if start_i < i:
@@ -212,5 +217,6 @@ if __name__ == '__main__':
         {'words': '保质期：12个月零一日生产日期：2024年8月11日'},
         {'words': '有限公司保质日期：12个月'},
         {'words': '生产日期：（年/月/日）'},
+        {'words': '保质期：12个月生产日期标于瓶盖或者瓶身'},
     ]
     print(extract_expiration_time(boarding_boxes))
