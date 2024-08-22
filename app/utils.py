@@ -166,15 +166,20 @@ def extract_expiration_time(boarding_boxes: list):
         for key in expiration_time_keys:
             if key in box['words']:
                 word = box['words']
+                word_len = len(word)
+                # 首先截断生产日期这种干扰
+                position = word.find('生产日期')
+                if position != -1:
+                    word_len = position
                 # 找到key在word中的位置并跳过key
                 i = word.index(key) + len(key)
                 # 寻找紧随其后的第一个有效字符
-                while i < len(word) and is_special_char(word[i]):
+                while i < word_len and is_special_char(word[i]):
                     i += 1
                 # 开始记录有效字符
                 start_i = i
                 # 寻找紧随有效字符后的第一个特殊字符
-                while i < len(word) and not is_special_char(word[i]):
+                while i < word_len and not is_special_char(word[i]):
                     i += 1
                 # 提取并记录有效字符串
                 if start_i < i:
@@ -191,9 +196,9 @@ def extract_expiration_time(boarding_boxes: list):
 
 if __name__ == '__main__':
     boarding_boxes = [
-        {'words': 'Hello SC123456789012 world'},
+        {'words': 'Hello SC12345678901234 world'},
         {'words': 'This is 134 and then 58'},
-        {'words': 'No SC here, just 901234567'},
+        {'words': 'No SC here, just 90123456789'},
         {'words': 'Another SC123 with 4567'}
     ]
     print(extract_sc_license(boarding_boxes))
@@ -201,8 +206,8 @@ if __name__ == '__main__':
     boarding_boxes = [
         {'words': '苏俄u护发素的远射得分吉萨大'},
         {'words': '无关信息'},
-        {'words': '生产商ss数据撒旦发生ll生产商   又一组数据789'},
-        {'words': '生产商:但这里没有汉字数据'},
+        {'words': '生产商：数据撒旦发生ll生产商   又一组数据789'},
+        {'words': '浙江生产单位:但这里没有汉字数据'},
     ]
     print(extract_producer(boarding_boxes))
 
@@ -210,6 +215,8 @@ if __name__ == '__main__':
         {'words': '苏俄u护发素的远射得分吉萨大'},
         {'words': '无关信息'},
         {'words': '保质期：12个月零一日生产日期：2024年8月11日'},
+        {'words': '有限公司保质日期：12个月'},
         {'words': '生产日期：（年/月/日）'},
+        {'words': '保质期：12个月生产日期标于瓶盖或者瓶身'},
     ]
     print(extract_expiration_time(boarding_boxes))
