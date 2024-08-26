@@ -165,7 +165,7 @@ def extract_expiration_time(boarding_boxes: list):
     for box in boarding_boxes:
         for key in expiration_time_keys:
             if key in box['words']:
-                word = box['words']
+                word = box['words'][box['words'].find(key):]
                 word_len = len(word)
                 # 首先截断生产日期这种干扰
                 position = word.find('生产日期')
@@ -218,5 +218,6 @@ if __name__ == '__main__':
         {'words': '有限公司保质日期：12个月'},
         {'words': '生产日期：（年/月/日）'},
         {'words': '保质期：12个月生产日期标于瓶盖或者瓶身'},
+        {'words': '生产日期：见瓶体（或瓶盖）保质期：18个月'},
     ]
     print(extract_expiration_time(boarding_boxes))
