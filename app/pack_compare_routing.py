@@ -8,6 +8,7 @@ from flask import Flask, request, jsonify
 from client import BaiduClient
 from pack_compare_dao import Ocr, OcrType, save_ocr, get_ocr, get_sample, save_sample_ocr_checked
 from kie import FoodPackKIE
+from flask_cors import CORS
 
 import os
 import time
@@ -15,6 +16,7 @@ import base64
 import paddle_ocr
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})  # 允许所有源的跨域请求
 baiduClient = BaiduClient()
 NGINX_ROOT = 'E:/data/ocr_images'
 # NGINX_ROOT = '/usr/local/webserver/nginx/html/aglimsFiles'

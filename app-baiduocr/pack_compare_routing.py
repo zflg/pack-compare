@@ -8,15 +8,17 @@ from flask import Flask, request, jsonify
 from client import BaiduClient
 from pack_compare_dao import Ocr, OcrType, save_ocr, get_ocr, get_sample, save_sample_ocr_checked
 from kie import FoodPackKIE
+from flask_cors import CORS
 
 import os
 import time
 import base64
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})  # 允许所有源的跨域请求
 baiduClient = BaiduClient()
-# NGINX_ROOT = 'E:/data/ocr_images'
-NGINX_ROOT = '/usr/local/webserver/nginx/html/aglimsFiles'
+NGINX_ROOT = 'E:/data/ocr_images'
+# NGINX_ROOT = '/usr/local/webserver/nginx/html/aglimsFiles'
 
 def predict_with_ai_model(data):
     res = baiduClient.accuracy_ocr(data['image'])
@@ -30,8 +32,9 @@ def save_image(base64_image):
     file_name = time.strftime('%Y%m%d-%H%M%S') + '.jpg'
     file_url = f'ocrFiles/input/{file_name}'
     # 将base64编码的图片数据写入文件，文件名为当前时间戳
-    head, context = base64_image.split(",")
-    imgdata = base64.b64decode(context)
+    if base64_image.startswith('data:image/jpeg;base64,'):
+        base64_image = base64_image.replace('data:image/jpeg;base64,', '')
+    imgdata = base64.b64decode(base64_image)
     with open(f"{NGINX_ROOT}/{file_url}", "wb") as f:
         f.write(imgdata)
     return file_url
@@ -102,6 +105,8 @@ def predict():
     data = request.get_json()
     base64_image = data['image']
     sample_no = data['sampleNo']
+    print(f"sample_no: {sample_no}")
+    print(f"image: {base64_image}")
     # 检查是否已经checked
     # if is_ocr_checked(sample_no):
     #     ocr = get_ocr(sample_no)
