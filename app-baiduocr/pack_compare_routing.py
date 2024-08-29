@@ -18,6 +18,8 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})  # 允许所有源的跨域请求
 baiduClient = BaiduClient()
 NGINX_ROOT = 'E:/data/ocr_images'
+
+
 # NGINX_ROOT = '/usr/local/webserver/nginx/html/aglimsFiles'
 
 def predict_with_ai_model(data):
@@ -123,6 +125,24 @@ def predict():
     # ocr_checked = orc_check(sample_no, extract_info)
     # 将预测结果作为响应返回
     return jsonify({"ocr_checked": True, "output_url": output_url, "extract_info": extract_info})
+
+@app.route('/ocr/check-info', methods=['POST'])
+def sample_info():
+    # 从请求中获取JSON数据
+    data = request.get_json()
+    sample_no = data['sampleNo']
+    print(f"sample_no: {sample_no}")
+    sample_no = '2024-ZX-B0039'
+    # 获取样本信息
+    sample = get_sample(sample_no)
+    if sample is None:
+        raise Exception(f"Sample {sample_no} not found.")
+    # 对比生产商
+    return jsonify({
+        "producer": sample.get_producer(),
+        "sc_license": sample.get_sc_license(),
+        "expiration_time": sample.get_expiration_time()
+    })
 
 
 if __name__ == '__main__':

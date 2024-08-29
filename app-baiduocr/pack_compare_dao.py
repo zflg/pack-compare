@@ -47,26 +47,40 @@ class Sample:
         self.metadata = json.loads(metadata)
         self.ocr_checked = ocr_checked
 
+    def find_field_value(self, field_code):
+        """
+        Find field from metadata.
+        Args:
+            field_code:
+
+        Returns:
+        """
+        fields = self.metadata['fields'] if 'fields' in self.metadata else []
+        for field in fields:
+            if field['code'] == field_code:
+                return field['value']
+        return None
+
     def get_producer(self):
         """
         Get producer from metadata.
         Returns:
         """
-        return self.metadata['producer'] if 'producer' in self.metadata else None
+        return self.find_field_value('producer')
 
     def get_sc_license(self):
         """
         Get sc_license from metadata.
         Returns:
         """
-        return self.metadata['sc_license'] if 'sc_license' in self.metadata else None
+        return self.find_field_value('sc_license')
 
     def get_expiration_time(self):
         """
         Get expiration_time from metadata.
         Returns:
         """
-        return self.metadata['expiration_time'] if 'expiration_time' in self.metadata else None
+        return self.find_field_value('expiration_time')
 
 
 def get_ocr(sample_no):
