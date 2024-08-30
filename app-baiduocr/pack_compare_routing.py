@@ -18,6 +18,7 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})  # 允许所有源的跨域请求
 baiduClient = BaiduClient()
 NGINX_ROOT = 'E:/data/ocr_images'
+ENV = 'dev-api'
 
 
 # NGINX_ROOT = '/usr/local/webserver/nginx/html/aglimsFiles'
@@ -101,7 +102,7 @@ def is_ocr_checked(sample_no):
     return sample.ocr_checked == 1
 
 
-@app.route('/ocr/predict', methods=['POST'])
+@app.route(f'/{ENV}/ocr/predict', methods=['POST'])
 def predict():
     # 从请求中获取JSON数据
     data = request.get_json()
@@ -126,7 +127,7 @@ def predict():
     # 将预测结果作为响应返回
     return jsonify({"ocr_checked": True, "output_url": output_url, "extract_info": extract_info})
 
-@app.route('/ocr/check-info', methods=['POST'])
+@app.route(f'/{ENV}/ocr/check-info', methods=['POST'])
 def sample_info():
     # 从请求中获取JSON数据
     data = request.get_json()
@@ -153,4 +154,4 @@ if __name__ == '__main__':
     if os.path.exists(f'{NGINX_ROOT}/ocrFiles/output') is False:
         os.makedirs(f'{NGINX_ROOT}/ocrFiles/output')
     # 运行Flask应用，监听8000端口
-    app.run(port=8000, debug=True)
+    app.run(port=8082, debug=True)
