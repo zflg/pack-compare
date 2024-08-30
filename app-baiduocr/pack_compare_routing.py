@@ -17,11 +17,9 @@ import base64
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})  # 允许所有源的跨域请求
 baiduClient = BaiduClient()
-NGINX_ROOT = 'E:/data/ocr_images'
-ENV = 'dev-api'
+NGINX_ROOT = '/usr/local/webserver/nginx/html/aglimsFiles'
+# NGINX_ROOT = 'E:/data/ocr_images'
 
-
-# NGINX_ROOT = '/usr/local/webserver/nginx/html/aglimsFiles'
 
 def predict_with_ai_model(data):
     res = baiduClient.accuracy_ocr(data['image'])
@@ -102,7 +100,7 @@ def is_ocr_checked(sample_no):
     return sample.ocr_checked == 1
 
 
-@app.route(f'/{ENV}/ocr/predict', methods=['POST'])
+@app.route(f'/ocr/predict', methods=['POST'])
 def predict():
     # 从请求中获取JSON数据
     data = request.get_json()
@@ -127,7 +125,7 @@ def predict():
     # 将预测结果作为响应返回
     return jsonify({"ocr_checked": True, "output_url": output_url, "extract_info": extract_info})
 
-@app.route(f'/{ENV}/ocr/check-info', methods=['POST'])
+@app.route(f'/ocr/check-info', methods=['POST'])
 def sample_info():
     # 从请求中获取JSON数据
     data = request.get_json()
