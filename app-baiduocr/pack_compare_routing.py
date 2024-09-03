@@ -131,7 +131,7 @@ def sample_info():
     data = request.get_json()
     sample_no = data['sampleNo']
     print(f"sample_no: {sample_no}")
-    sample_no = '2024-ZX-B0039'
+    # sample_no = '2024-ZX-B0039'
     # 获取样本信息
     sample = get_sample(sample_no)
     if sample is None:
