@@ -152,4 +152,4 @@ if __name__ == '__main__':
     if os.path.exists(f'{NGINX_ROOT}/ocrFiles/output') is False:
         os.makedirs(f'{NGINX_ROOT}/ocrFiles/output')
     # 运行Flask应用，监听8000端口
-    app.run(port=8082, debug=True)
+    app.run(port=8000, debug=True)

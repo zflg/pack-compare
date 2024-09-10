@@ -109,6 +109,9 @@ def extract_producer(boarding_boxes: list):
             or not boarding_boxes[0].get('words')):
         return []
 
+    # 定义结束标识
+    end_markers = {'公司'}
+
     # 定义生产商的关键字
     producer_keys = {'生产商', '生产厂家', '生产单位', '生产者', '制造商', '制造单位', '委托方', "委托单位"}
 
@@ -116,10 +119,14 @@ def extract_producer(boarding_boxes: list):
     extracted_data = []
 
     # 遍历每个box
-    for box in boarding_boxes:
+    for index, box in enumerate(boarding_boxes):
         for key in producer_keys:
             if key in box['words']:
-                word = box['words']
+                # 如果当前box不是最后一个box，则将当前box和下一个box合并
+                if index < len(boarding_boxes) - 1:
+                    word = box['words'] + boarding_boxes[index + 1]['words']
+                else:
+                    word = box['words']
                 # 找到key在word中的位置并跳过key
                 i = word.index(key) + len(key)
                 # 寻找紧随其后的第一个有效字符
@@ -128,7 +135,7 @@ def extract_producer(boarding_boxes: list):
                 # 开始记录有效字符
                 start_i = i
                 # 寻找紧随有效字符后的第一个特殊字符
-                while i < len(word) and not is_special_char(word[i]):
+                while i < len(word) and not is_special_char(word[i]) and word[i - 2:i] not in end_markers:
                     i += 1
                 # 提取并记录有效字符串
                 if start_i < i:
@@ -208,6 +215,7 @@ if __name__ == '__main__':
         {'words': '无关信息'},
         {'words': '生产商：数据撒旦发生ll生产商   又一组数据789'},
         {'words': '浙江生产单位:但这里没有汉字数据'},
+        {'words': '有限公司保质日期：12个月'},
     ]
     print(extract_producer(boarding_boxes))
 
@@ -221,3 +229,11 @@ if __name__ == '__main__':
         {'words': '生产日期：见瓶体（或瓶盖）保质期：18个月'},
     ]
     print(extract_expiration_time(boarding_boxes))
+
+    # end_markers = {'公司'}
+    # words = '成都百智科技有限公司保质期'
+    # len = len(words)
+    # i = 3
+    # while i < len and not is_special_char(words[i]) and words[i - 2: i] not in end_markers:
+    #     i += 1
+    # print(words[:i])
