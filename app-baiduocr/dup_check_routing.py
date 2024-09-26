@@ -244,7 +244,7 @@ def check(extract_info: dict):
     return result
 
 
-@dup_check_bp.route('/dup_check', methods=['POST'])
+@dup_check_bp.route('/ocr/dup_check', methods=['POST'])
 def dup_check():
     # 从请求中获取JSON数据
     data = request.get_json()
