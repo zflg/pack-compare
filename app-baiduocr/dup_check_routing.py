@@ -4,6 +4,7 @@
 # @time    : 2024/9/25 12:53
 # @function: the script is used to do something.
 # @version : V1
+import datetime
 import logging
 
 from flask import Blueprint, request, jsonify
@@ -92,34 +93,34 @@ THRESHOLD = {
 #     }
 # }
 
-prediction = [{'probability': {'average': 0.9992135763, 'min': 0.9927974343, 'variance': 4.576815172e-06}, 'words': '10:239月26日',
-               'location': {'top': 11, 'left': 47, 'width': 193, 'height': 32}},
-              {'probability': {'average': 0.9999781847, 'min': 0.9999598265, 'variance': 3.370246304e-10}, 'words': '周四',
-               'location': {'top': 12, 'left': 251, 'width': 59, 'height': 31}},
-              {'probability': {'average': 0.9999492764, 'min': 0.9999064207, 'variance': 1.836614416e-09}, 'words': '45',
-               'location': {'top': 20, 'left': 1481, 'width': 25, 'height': 16}},
-              {'probability': {'average': 0.9994804263, 'min': 0.9994804263, 'variance': 0}, 'words': '<',
-               'location': {'top': 86, 'left': 33, 'width': 28, 'height': 43}},
-              {'probability': {'average': 0.9994714856, 'min': 0.9991490841, 'variance': 7.827444648e-08}, 'words': '样品填报',
-               'location': {'top': 87, 'left': 722, 'width': 152, 'height': 41}},
-              {'probability': {'average': 0.9997881055, 'min': 0.99935776, 'variance': 6.241887718e-08}, 'words': 'SC号：',
-               'location': {'top': 306, 'left': 71, 'width': 94, 'height': 36}},
-              {'probability': {'average': 0.9999607801, 'min': 0.9998807907, 'variance': 1.078768186e-09}, 'words': 'SC10634122207025',
-               'location': {'top': 309, 'left': 411, 'width': 324, 'height': 32}},
-              {'probability': {'average': 0.9996398091, 'min': 0.9983696342, 'variance': 4.064296775e-07}, 'words': '样本名称：',
-               'location': {'top': 488, 'left': 70, 'width': 159, 'height': 38}},
-              {'probability': {'average': 0.9999471307, 'min': 0.9998549223, 'variance': 3.236055202e-09}, 'words': '云南黑咖啡固体饮料',
-               'location': {'top': 491, 'left': 410, 'width': 325, 'height': 38}},
-              {'probability': {'average': 0.999538064, 'min': 0.9977224469, 'variance': 8.240952525e-07}, 'words': '生产日期：',
-               'location': {'top': 673, 'left': 71, 'width': 157, 'height': 38}},
-              {'probability': {'average': 0.9999939203, 'min': 0.9999756813, 'variance': 6.591136664e-11}, 'words': '2024-06-02',
-               'location': {'top': 678, 'left': 409, 'width': 186, 'height': 33}},
-              {'probability': {'average': 0.9994578362, 'min': 0.9970893264, 'variance': 1.131303293e-06}, 'words': '营业执照号：',
-               'location': {'top': 857, 'left': 72, 'width': 193, 'height': 39}},
-              {'probability': {'average': 0.9661802053, 'min': 0.6637955308, 'variance': 0.01015981846}, 'words': 'GB/T 29602',
-               'location': {'top': 861, 'left': 410, 'width': 200, 'height': 38}},
-              {'probability': {'average': 0.9982610941, 'min': 0.9966891408, 'variance': 2.471130756e-06}, 'words': '清除',
-               'location': {'top': 1037, 'left': 800, 'width': 69, 'height': 33}}]
+# prediction = [{'probability': {'average': 0.9992135763, 'min': 0.9927974343, 'variance': 4.576815172e-06}, 'words': '10:239月26日',
+#                'location': {'top': 11, 'left': 47, 'width': 193, 'height': 32}},
+#               {'probability': {'average': 0.9999781847, 'min': 0.9999598265, 'variance': 3.370246304e-10}, 'words': '周四',
+#                'location': {'top': 12, 'left': 251, 'width': 59, 'height': 31}},
+#               {'probability': {'average': 0.9999492764, 'min': 0.9999064207, 'variance': 1.836614416e-09}, 'words': '45',
+#                'location': {'top': 20, 'left': 1481, 'width': 25, 'height': 16}},
+#               {'probability': {'average': 0.9994804263, 'min': 0.9994804263, 'variance': 0}, 'words': '<',
+#                'location': {'top': 86, 'left': 33, 'width': 28, 'height': 43}},
+#               {'probability': {'average': 0.9994714856, 'min': 0.9991490841, 'variance': 7.827444648e-08}, 'words': '样品填报',
+#                'location': {'top': 87, 'left': 722, 'width': 152, 'height': 41}},
+#               {'probability': {'average': 0.9997881055, 'min': 0.99935776, 'variance': 6.241887718e-08}, 'words': 'SC号：',
+#                'location': {'top': 306, 'left': 71, 'width': 94, 'height': 36}},
+#               {'probability': {'average': 0.9999607801, 'min': 0.9998807907, 'variance': 1.078768186e-09}, 'words': 'SC10634122207025',
+#                'location': {'top': 309, 'left': 411, 'width': 324, 'height': 32}},
+#               {'probability': {'average': 0.9996398091, 'min': 0.9983696342, 'variance': 4.064296775e-07}, 'words': '样本名称：',
+#                'location': {'top': 488, 'left': 70, 'width': 159, 'height': 38}},
+#               {'probability': {'average': 0.9999471307, 'min': 0.9998549223, 'variance': 3.236055202e-09}, 'words': '云南黑咖啡固体饮料',
+#                'location': {'top': 491, 'left': 410, 'width': 325, 'height': 38}},
+#               {'probability': {'average': 0.999538064, 'min': 0.9977224469, 'variance': 8.240952525e-07}, 'words': '生产日期：',
+#                'location': {'top': 673, 'left': 71, 'width': 157, 'height': 38}},
+#               {'probability': {'average': 0.9999939203, 'min': 0.9999756813, 'variance': 6.591136664e-11}, 'words': '2024-06-02',
+#                'location': {'top': 678, 'left': 409, 'width': 186, 'height': 33}},
+#               {'probability': {'average': 0.9994578362, 'min': 0.9970893264, 'variance': 1.131303293e-06}, 'words': '营业执照号：',
+#                'location': {'top': 857, 'left': 72, 'width': 193, 'height': 39}},
+#               {'probability': {'average': 0.9661802053, 'min': 0.6637955308, 'variance': 0.01015981846}, 'words': 'GB/T 29602',
+#                'location': {'top': 861, 'left': 410, 'width': 200, 'height': 38}},
+#               {'probability': {'average': 0.9982610941, 'min': 0.9966891408, 'variance': 2.471130756e-06}, 'words': '清除',
+#                'location': {'top': 1037, 'left': 800, 'width': 69, 'height': 33}}]
 
 # 如果根目录不存在，则创建目录
 if os.path.exists(f'{NGINX_ROOT}/dupCheckFiles/input') is False:
@@ -159,7 +160,7 @@ def check(extract_info: dict):
     Returns:
         result
     """
-    all = dao.select_dup_check_list()
+    check_list = dao.select_dup_check_list()
     result = {
         "content": {
             "scLicense": extract_info['sc_license'],
@@ -168,8 +169,13 @@ def check(extract_info: dict):
             "bzLicense": extract_info['bz_license']
         }
     }
-    # 检查是否有重复
-    for item in all:
+    # check_list按照时间倒叙
+    check_list.sort(key=lambda x: x.createTime, reverse=True)
+    # 检查是否有重复，只检查三个月内的数据
+    check_time = datetime.datetime.now() - datetime.timedelta(days=90)
+    for item in check_list:
+        if item.createTime < check_time:
+            break
         if item.sampleName == extract_info['sample_name'] and item.bzLicense == extract_info['bz_license']:
             dup = item
             ocr = dao.get_ocr_by_id(item.ocrId)
@@ -186,6 +192,7 @@ def check(extract_info: dict):
             }
             result['isDup'] = True
             result['dupInfo'] = dupInfo
+            break
     if 'isDup' not in result:
         result['isDup'] = False
     # 检查相似度
@@ -215,7 +222,7 @@ def check(extract_info: dict):
             "refs": []
         },
     }
-    for item in all:
+    for item in check_list:
         hasRef, ratios = similarity_threshold_check(item.scLicense, extract_info['sc_license'], THRESHOLD['scLicense'])
         if hasRef:
             refInfo['scLicense']['hasRef'] = True
@@ -253,7 +260,7 @@ def dup_check():
     input_url = save_image(base64_screenshot)
     output_url = get_output_url(input_url)
     # 百度ocr预测
-    # prediction = baiduClient.accuracy_ocr(base64_screenshot, detect_direction='false', multidirectional_recognize='false')
+    prediction = baiduClient.accuracy_ocr(base64_screenshot, detect_direction='false', multidirectional_recognize='false')
     logging.info(f"prediction: {prediction}")
     baiduClient.draw_ocr_box_txt(f'{NGINX_ROOT}/{input_url}', f'{NGINX_ROOT}/{output_url}', prediction)
     extract_info = ScreenShotKie(prediction).run()
@@ -275,3 +282,7 @@ def dup_check():
         dao.save_dup_check(dupCheck)
     # 返回结果
     return jsonify(result)
+
+
+if __name__ == '__main__':
+    print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
