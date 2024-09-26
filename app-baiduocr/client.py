@@ -122,3 +122,6 @@ class BaiduClient:
             return json.loads(response.text)['words_result']
         else:
             print(f"Failed to call Baidu accuracy OCR API, status code: {response.status_code}")
+
+
+baiduClient = BaiduClient()

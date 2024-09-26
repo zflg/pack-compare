@@ -23,3 +23,6 @@ MYSQL_PORT = 3306
 # MYSQL_USER = 'root'
 # MYSQL_PASSWORD = 'Bzkj13699416021!'
 # MYSQL_PORT = 22285
+
+# NGINX_ROOT = '/usr/local/webserver/nginx/html/aglimsFiles'
+NGINX_ROOT = 'E:/data/ocr_images'

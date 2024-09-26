@@ -4,21 +4,25 @@
 # @time    : 2024/8/9 22:42
 # @function: the script is used to do something.
 # @version : V1
-from flask import Flask, request, jsonify
-from client import BaiduClient
+from flask import request, jsonify, Blueprint
+from client import baiduClient
 from pack_compare_dao import Ocr, OcrType, save_ocr, get_ocr, get_sample, save_sample_ocr_checked
 from kie import FoodPackKIE
-from flask_cors import CORS
+from setting import NGINX_ROOT
 
 import os
 import time
 import base64
+import logging
 
-app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})  # 允许所有源的跨域请求
-baiduClient = BaiduClient()
-NGINX_ROOT = '/usr/local/webserver/nginx/html/aglimsFiles'
-# NGINX_ROOT = 'E:/data/ocr_images'
+pack_compare_bp = Blueprint('pack_compare_bp', __name__)
+
+# 如果根目录不存在，则创建目录
+if os.path.exists(f'{NGINX_ROOT}/ocrFiles/input') is False:
+    os.makedirs(f'{NGINX_ROOT}/ocrFiles/input')
+# 如果根目录不存在，则创建目录
+if os.path.exists(f'{NGINX_ROOT}/ocrFiles/output') is False:
+    os.makedirs(f'{NGINX_ROOT}/ocrFiles/output')
 
 
 def predict_with_ai_model(data):
@@ -100,14 +104,14 @@ def is_ocr_checked(sample_no):
     return sample.ocr_checked == 1
 
 
-@app.route(f'/ocr/predict', methods=['POST'])
+@pack_compare_bp.route(f'/ocr/predict', methods=['POST'])
 def predict():
     # 从请求中获取JSON数据
     data = request.get_json()
     base64_image = data['image']
     sample_no = data['sampleNo']
-    print(f"sample_no: {sample_no}")
-    print(f"image: {base64_image}")
+    logging.debug(f"sample_no: {sample_no}")
+    logging.debug(f"image: {base64_image}")
     # 检查是否已经checked
     # if is_ocr_checked(sample_no):
     #     ocr = get_ocr(sample_no)
@@ -125,12 +129,13 @@ def predict():
     # 将预测结果作为响应返回
     return jsonify({"ocr_checked": True, "output_url": output_url, "extract_info": extract_info})
 
-@app.route(f'/ocr/check-info', methods=['POST'])
+
+@pack_compare_bp.route(f'/ocr/check-info', methods=['POST'])
 def sample_info():
     # 从请求中获取JSON数据
     data = request.get_json()
     sample_no = data['sampleNo']
-    print(f"sample_no: {sample_no}")
+    logging.debug(f"sample_no: {sample_no}")
     # sample_no = '2024-ZX-B0039'
     # 获取样本信息
     sample = get_sample(sample_no)
@@ -142,14 +147,3 @@ def sample_info():
         "sc_license": sample.get_sc_license(),
         "expiration_time": sample.get_expiration_time()
     })
-
-
-if __name__ == '__main__':
-    # 如果根目录不存在，则创建目录
-    if os.path.exists(f'{NGINX_ROOT}/ocrFiles/input') is False:
-        os.makedirs(f'{NGINX_ROOT}/ocrFiles/input')
-    # 如果根目录不存在，则创建目录
-    if os.path.exists(f'{NGINX_ROOT}/ocrFiles/output') is False:
-        os.makedirs(f'{NGINX_ROOT}/ocrFiles/output')
-    # 运行Flask应用，监听8000端口
-    app.run(port=8000, debug=True)

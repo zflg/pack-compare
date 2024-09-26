@@ -4,10 +4,10 @@
 # @time    : 2024/8/10 9:50
 # @function: the script is used to do something.
 # @version : V1
-
 import pymysql
 import setting
 import json
+import logging
 from enum import Enum
 
 connection = pymysql.connect(
@@ -19,7 +19,7 @@ connection = pymysql.connect(
     charset='utf8mb4',
     cursorclass=pymysql.cursors.DictCursor
 )
-print("Database connected!")
+logging.info("Database connected!")
 
 
 class OcrType(Enum):
@@ -30,7 +30,6 @@ class OcrType(Enum):
 class Ocr:
 
     def __init__(self, sample_no, image_url, output_url, ocr_type: OcrType, ocr_result, extract_info):
-        self.cursor = connection.cursor()
         self.sample_no = sample_no
         self.image_url = image_url
         self.output_url = output_url
@@ -42,7 +41,6 @@ class Ocr:
 class Sample:
 
     def __init__(self, sample_no, metadata, ocr_checked):
-        self.cursor = connection.cursor()
         self.sample_no = sample_no
         self.metadata = json.loads(metadata)
         self.ocr_checked = ocr_checked
@@ -131,9 +129,9 @@ def save_ocr(ocr):
     try:
         cursor.execute(sql, values)
         connection.commit()
-        print(f"OCR {ocr.sample_no} saved to database")
+        logging.info(f"OCR {ocr.sample_no} saved to database")
     except Exception as e:
-        print(f"Failed to save OCR result of sample {ocr.sample_no} to database: {e}")
+        logging.exception(f"Failed to save OCR result of sample {ocr.sample_no} to database: {e}")
         connection.rollback()
     cursor.close()
 
@@ -171,8 +169,8 @@ def save_sample_ocr_checked(sample_no):
     try:
         cursor.execute(sql, sample_no)
         connection.commit()
-        print(f"Sample {sample_no} orc checked")
+        logging.info(f"Sample {sample_no} orc checked")
     except Exception as e:
-        print(f"Failed to save Sample {sample_no} orc checked: {e}")
+        logging.exception(f"Failed to save Sample {sample_no} orc checked: {e}")
         connection.rollback()
     cursor.close()
