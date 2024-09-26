@@ -22,7 +22,7 @@ logging.info("Database connected!")
 
 class DupCheck:
 
-    def __init__(self, id, ocrId, scLicense, sampleName, produceDate, bzLicense, createTime):
+    def __init__(self, id=None, ocrId=None, scLicense=None, sampleName=None, produceDate=None, bzLicense=None, createTime=None):
         self.id = id
         self.ocrId = ocrId
         self.scLicense = scLicense
@@ -34,7 +34,8 @@ class DupCheck:
 
 class DupCheckOcr:
 
-    def __init__(self, id, scLicense, sampleName, produceDate, bzLicense, screenshotUrl, screenshotOutputUrl, isDup, createTime):
+    def __init__(self, id=None, scLicense=None, sampleName=None, produceDate=None, bzLicense=None, screenshotUrl=None, screenshotOutputUrl=None, isDup=None,
+                 createTime=None):
         self.id = id
         self.scLicense = scLicense
         self.sampleName = sampleName
@@ -55,7 +56,7 @@ def save_ocr(ocr: DupCheckOcr):
     Returns:
     """
     connection.ping(reconnect=True)
-    sql = ("INSERT INTO `spl_pack_compare_ocr` ("
+    sql = ("INSERT INTO `spl_dup_check_ocr` ("
            "`sc_license`,"
            "`sample_name`,"
            "`produce_date`,"
@@ -72,11 +73,12 @@ def save_ocr(ocr: DupCheckOcr):
         ocr.bzLicense,
         ocr.screenshotUrl,
         ocr.screenshotOutputUrl,
-        ocr.isDup
+        1 if ocr.isDup else 0
     )
     connection.ping(reconnect=True)
     cursor = connection.cursor()
     try:
+        print(sql)
         cursor.execute(sql, values)
         # 找到最新插入的id
         ocr_id = connection.insert_id()
@@ -101,18 +103,18 @@ def select_ocr_list(ocr: DupCheckOcr = None):
     Returns:
         Ocr list
     """
-    sql = "SELECT * FROM `spl_pack_compare_ocr` WHERE 1 = 1"
+    sql = "SELECT * FROM `spl_dup_check_ocr` WHERE 1 = 1"
     if ocr is not None:
         if ocr.id is not None:
             sql += f" AND `id` = {ocr.id}"
         if ocr.scLicense is not None:
-            sql += f" AND `sc_license` = {ocr.scLicense}"
+            sql += f" AND `sc_license` = '{ocr.scLicense}'"
         if ocr.sampleName is not None:
-            sql += f" AND `sample_name` = {ocr.sampleName}"
+            sql += f" AND `sample_name` = '{ocr.sampleName}'"
         if ocr.produceDate is not None:
-            sql += f" AND `produce_date` = {ocr.produceDate}"
+            sql += f" AND `produce_date` = '{ocr.produceDate}'"
         if ocr.bzLicense is not None:
-            sql += f" AND `bz_license` = {ocr.bzLicense}"
+            sql += f" AND `bz_license` = '{ocr.bzLicense}'"
     connection.ping(reconnect=True)
     cursor = connection.cursor()
     cursor.execute(sql)
@@ -137,7 +139,7 @@ def get_ocr_by_id(ocr_id: int):
     Returns:
         ocr
     """
-    sql = "SELECT * FROM `spl_pack_compare_ocr` WHERE `id` = %s"
+    sql = "SELECT * FROM `spl_dup_check_ocr` WHERE `id` = %s"
     connection.ping(reconnect=True)
     cursor = connection.cursor()
     cursor.execute(sql, ocr_id)
@@ -162,17 +164,18 @@ def select_dup_check_list(dupCheck: DupCheck = None):
     sql = "SELECT * FROM `spl_dup_check` WHERE 1 = 1"
     if dupCheck is not None:
         if dupCheck.ocrId is not None:
-            sql += f" AND `ocr_id` = {dupCheck.ocrId}"
+            sql += f" AND `ocr_id` = '{dupCheck.ocrId}'"
         if dupCheck.scLicense is not None:
-            sql += f" AND `sc_license` = {dupCheck.scLicense}"
+            sql += f" AND `sc_license` = '{dupCheck.scLicense}'"
         if dupCheck.sampleName is not None:
-            sql += f" AND `sample_name` = {dupCheck.sampleName}"
+            sql += f" AND `sample_name` = '{dupCheck.sampleName}'"
         if dupCheck.produceDate is not None:
-            sql += f" AND `produce_date` = {dupCheck.produceDate}"
+            sql += f" AND `produce_date` = '{dupCheck.produceDate}'"
         if dupCheck.bzLicense is not None:
-            sql += f" AND `bz_license` = {dupCheck.bzLicense}"
+            sql += f" AND `bz_license` = '{dupCheck.bzLicense}'"
     connection.ping(reconnect=True)
     cursor = connection.cursor()
+    print(sql)
     cursor.execute(sql)
     dup_check_list = cursor.fetchall()
     connection.commit()
@@ -181,8 +184,8 @@ def select_dup_check_list(dupCheck: DupCheck = None):
     if dup_check_list is None:
         return result
     for dup_check in dup_check_list:
-        result.append(DupCheck(dup_check['id'], dup_check['sc_license'], dup_check['sample_name'], dup_check['produce_date'], dup_check['bz_license'],
-                               dup_check['create_time']))
+        result.append(DupCheck(dup_check['id'], dup_check['ocr_id'], dup_check['sc_license'], dup_check['sample_name'], dup_check['produce_date'],
+                               dup_check['bz_license'], dup_check['create_time']))
     return result
 
 

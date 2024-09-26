@@ -58,3 +58,5 @@ def similarity_threshold_check(content: str, ref_content: str, threshold: float 
 
 if __name__ == '__main__':
     print(similarity_threshold_check("SC1234567890123", "SC12345678901234", 0.9))
+    print(similarity_threshold_check("GB/T 29602", "GB/T 29603", 0.9))
+    print(similarity_threshold_check("2024-06-02", "2024-06-03", 0.9))

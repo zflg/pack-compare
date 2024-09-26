@@ -206,9 +206,46 @@ class ScreenShotKie:
         Returns:
         """
         sc_license = self.extract_sc_license()
-        producer = self.extract_producer()
-        expiration_time = self.extract_expiration_time()
-        return {"sc_license": sc_license, "producer": producer, "expiration_time": expiration_time}
+        sample_name = self.extract_sample_name()
+        produce_date = self.extract_produce_date()
+        bz_license = self.extract_bz_license()
+
+        return {"sc_license": sc_license, "sample_name": sample_name, "produce_date": produce_date, "bz_license": bz_license}
+
+    def _extract_next_box_inline(self, key):
+        """
+        从boarding_boxes中提取下一个box，但是下一个box如果换行，则返回None
+        Args:
+            key:
+            index:
+            boarding_boxes:
+
+        Returns:
+            next box
+        """
+        boarding_boxes = self.boarding_boxes
+        if (not boarding_boxes
+                or not isinstance(boarding_boxes, list)
+                or len(boarding_boxes) == 0
+                or not boarding_boxes[0].get('words')):
+            return None
+        # 找到包含关键字[key]的box，并返回它的下一个box，但是下一个box如果换行，则返回None
+        for box in boarding_boxes:
+            if key in box['words']:
+                cur_top_y = box['location']['top']
+                cur_below_y = box['location']['top'] + box['location']['height']
+                cur_right_x = box['location']['left'] + box['location']['width']
+                # 遍历所有box，找到下一个box
+                for next_box in boarding_boxes:
+                    if next_box == box:
+                        continue
+                    next_top_y = next_box['location']['top']
+                    next_below_y = next_box['location']['top'] + next_box['location']['height']
+                    next_left_x = next_box['location']['left']
+                    # inline的判断，next box的左上角高于当前box的左下角，next box的右上角低于当前box的右下角，x轴无交集
+                    if next_top_y <= cur_below_y and next_below_y >= cur_top_y and next_left_x > cur_right_x:
+                        return next_box['words']
+        return None
 
     def extract_sc_license(self):
         """
@@ -216,46 +253,7 @@ class ScreenShotKie:
         Returns:
             sc license
         """
-        boarding_boxes = self.boarding_boxes
-        if (not boarding_boxes
-                or not isinstance(boarding_boxes, list)
-                or len(boarding_boxes) == 0
-                or not boarding_boxes[0].get('words')):
-            return []
-        # 提取所有SC紧跟的数字
-        sc_numbers = []
-        # 提取所有纯数字
-        pure_numbers = []
-        # 遍历每个box
-        for box in boarding_boxes:
-            word = box['words']
-
-            # 提取SC紧跟的数字
-            import re
-            sc_matches = re.findall(r'SC(\d{1,14})', word)
-            for match in sc_matches:
-                sc_numbers.append('SC' + match)
-
-            # 提取纯数字
-            number_matches = re.findall(r'\b\d+\b', word)  # 使用\b确保匹配的是完整的单词（即数字）
-            for match in number_matches:
-                pure_numbers.append(match)
-
-        # 尝试拼接SC数字和纯数字以形成长度为14的字符串
-        valid_pairs = []
-        for sc_num in sc_numbers:
-            if len(sc_num) == 16:  # 如果SC数字已经足够长，直接添加
-                valid_pairs.append(sc_num)
-            else:
-                for pure_num in pure_numbers:
-                    tmp = sc_num + pure_num
-                    if len(tmp) == 16:
-                        valid_pairs.append(tmp)
-                        # 可选：从pure_numbers中移除已使用的数字，以避免重复使用
-                        pure_numbers.remove(pure_num)
-                        break  # 找到一组后停止内层循环
-
-        return valid_pairs
+        return self._extract_next_box_inline("SC号")
 
     def extract_sample_name(self):
         """
@@ -263,7 +261,7 @@ class ScreenShotKie:
         Returns:
             sample name
         """
-        pass
+        return self._extract_next_box_inline("样本名称")
 
     def extract_produce_date(self):
         """
@@ -271,7 +269,7 @@ class ScreenShotKie:
         Returns:
             produce date
         """
-        pass
+        return self._extract_next_box_inline("生产日期")
 
     def extract_bz_license(self):
         """
@@ -279,8 +277,7 @@ class ScreenShotKie:
         Returns:
             bz license
         """
-        pass
-
+        return self._extract_next_box_inline("营业执照号")
 
 
 if __name__ == '__main__':
@@ -311,3 +308,33 @@ if __name__ == '__main__':
         {'words': '生产日期：见瓶体（或瓶盖）保质期：18个月'},
     ])
     print(kie.extract_expiration_time())
+
+    prediction = [{'probability': {'average': 0.9992135763, 'min': 0.9927974343, 'variance': 4.576815172e-06}, 'words': '10:239月26日',
+                   'location': {'top': 11, 'left': 47, 'width': 193, 'height': 32}},
+                  {'probability': {'average': 0.9999781847, 'min': 0.9999598265, 'variance': 3.370246304e-10}, 'words': '周四',
+                   'location': {'top': 12, 'left': 251, 'width': 59, 'height': 31}},
+                  {'probability': {'average': 0.9999492764, 'min': 0.9999064207, 'variance': 1.836614416e-09}, 'words': '45',
+                   'location': {'top': 20, 'left': 1481, 'width': 25, 'height': 16}},
+                  {'probability': {'average': 0.9994804263, 'min': 0.9994804263, 'variance': 0}, 'words': '<',
+                   'location': {'top': 86, 'left': 33, 'width': 28, 'height': 43}},
+                  {'probability': {'average': 0.9994714856, 'min': 0.9991490841, 'variance': 7.827444648e-08}, 'words': '样品填报',
+                   'location': {'top': 87, 'left': 722, 'width': 152, 'height': 41}},
+                  {'probability': {'average': 0.9997881055, 'min': 0.99935776, 'variance': 6.241887718e-08}, 'words': 'SC号：',
+                   'location': {'top': 306, 'left': 71, 'width': 94, 'height': 36}},
+                  {'probability': {'average': 0.9999607801, 'min': 0.9998807907, 'variance': 1.078768186e-09}, 'words': 'SC10634122207025',
+                   'location': {'top': 309, 'left': 411, 'width': 324, 'height': 32}},
+                  {'probability': {'average': 0.9996398091, 'min': 0.9983696342, 'variance': 4.064296775e-07}, 'words': '样本名称：',
+                   'location': {'top': 488, 'left': 70, 'width': 159, 'height': 38}},
+                  {'probability': {'average': 0.9999471307, 'min': 0.9998549223, 'variance': 3.236055202e-09}, 'words': '云南黑咖啡固体饮料',
+                   'location': {'top': 491, 'left': 410, 'width': 325, 'height': 38}},
+                  {'probability': {'average': 0.999538064, 'min': 0.9977224469, 'variance': 8.240952525e-07}, 'words': '生产日期：',
+                   'location': {'top': 673, 'left': 71, 'width': 157, 'height': 38}},
+                  {'probability': {'average': 0.9999939203, 'min': 0.9999756813, 'variance': 6.591136664e-11}, 'words': '2024-06-02',
+                   'location': {'top': 678, 'left': 409, 'width': 186, 'height': 33}},
+                  {'probability': {'average': 0.9994578362, 'min': 0.9970893264, 'variance': 1.131303293e-06}, 'words': '营业执照号：',
+                   'location': {'top': 857, 'left': 72, 'width': 193, 'height': 39}},
+                  {'probability': {'average': 0.9661802053, 'min': 0.6637955308, 'variance': 0.01015981846}, 'words': 'GB/T 29602',
+                   'location': {'top': 861, 'left': 410, 'width': 200, 'height': 38}},
+                  {'probability': {'average': 0.9982610941, 'min': 0.9966891408, 'variance': 2.471130756e-06}, 'words': '清除',
+                   'location': {'top': 1037, 'left': 800, 'width': 69, 'height': 33}}]
+    print(ScreenShotKie(prediction).run())
