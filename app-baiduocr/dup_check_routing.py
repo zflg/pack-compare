@@ -227,19 +227,24 @@ def check(extract_info: dict):
         },
     }
     # 将check_list里面的sample_name做distinct处理
-    sample_names = set([item.sampleName for item in check_list])
-    for item in sample_names:
-        if item == extract_info["sample_name"]:
+    for item in check_list:
+        if item.sampleName == extract_info["sample_name"]:
             refInfo['sampleName']['hasSame'] = True
             break
     if refInfo['sampleName']['hasSame'] is False:
-        for item in sample_names:
-            hasRef, similarity = similarity_threshold_check(item, extract_info["sample_name"], THRESHOLD['sampleName'])
+        sample_names = set()
+        for item in check_list:
+            if item.sampleName is None:
+                continue
+            if sample_names.__contains__(item.sampleName):
+                continue
+            sample_names.add(item.sampleName)
+            hasRef, similarity = similarity_threshold_check(item.sampleName, extract_info["sample_name"], THRESHOLD['sampleName'])
             if hasRef:
                 refInfo['sampleName']['hasRef'] = True
                 refInfo['sampleName']['refs'].append({
                     "id": item.id,
-                    "content": item.bzLicense,
+                    "content": item.sampleName,
                     "similarity": similarity
                 })
     result['refInfo'] = refInfo
