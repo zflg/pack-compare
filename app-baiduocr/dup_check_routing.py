@@ -21,10 +21,10 @@ import dup_check_dao as dao
 dup_check_bp = Blueprint('dup_check_bp', __name__)
 
 THRESHOLD = {
-    "scLicense": 0.9,
-    "sampleName": 0.6,
+    "scLicense": 1,
+    "sampleName": 0.8,
     "produceDate": 1,
-    "bzLicense": 0.9
+    "bzLicense": 1
 }
 
 # result = {
@@ -202,51 +202,46 @@ def check(extract_info: dict):
             "threshold": THRESHOLD['scLicense'],
             # hasRef为True表示有参考值，False表示没有参考值(有没有找到历史数据，超过相似度阈值则认为找到了历史参照)
             "hasRef": False,
+            "hasSame": False,
             # 找到历史数据之后的纠错结果,这是一个列表
-            "refs": []
+            "refs": None
         },
         "sampleName": {
             # 相似度阈值更低
             "threshold": THRESHOLD['sampleName'],
             "hasRef": False,
+            "hasSame": False,
             "refs": []
         },
         "produceDate": {
             "threshold": THRESHOLD['produceDate'],
             "hasRef": False,
+            "hasSame": False,
             "refs": None
         },
         "bzLicense": {
             "threshold": THRESHOLD['bzLicense'],
             "hasRef": False,
-            "refs": []
+            "hasSame": False,
+            "refs": None
         },
     }
-    for item in check_list:
-        hasRef, ratios = similarity_threshold_check(item.scLicense, extract_info['sc_license'], THRESHOLD['scLicense'])
-        if hasRef:
-            refInfo['scLicense']['hasRef'] = True
-            refInfo['scLicense']['refs'].append({
-                "id": item.id,
-                "content": item.scLicense,
-                "similarity": ratios
-            })
-        hasRef, ratios = similarity_threshold_check(item.sampleName, extract_info["sample_name"], THRESHOLD['sampleName'])
-        if hasRef:
-            refInfo['sampleName']['hasRef'] = True
-            refInfo['sampleName']['refs'].append({
-                "id": item.id,
-                "content": item.sampleName,
-                "similarity": ratios
-            })
-        hasRef, ratios = similarity_threshold_check(item.bzLicense, extract_info["bz_license"], THRESHOLD['bzLicense'])
-        if hasRef:
-            refInfo['bzLicense']['hasRef'] = True
-            refInfo['bzLicense']['refs'].append({
-                "id": item.id,
-                "content": item.bzLicense,
-                "similarity": ratios
-            })
+    # 将check_list里面的sample_name做distinct处理
+    sample_names = set([item.sampleName for item in check_list])
+    for item in sample_names:
+        if item == extract_info["sample_name"]:
+            refInfo['sampleName']['hasSame'] = True
+            break
+    if refInfo['sampleName']['hasSame'] is False:
+        for item in sample_names:
+            hasRef, similarity = similarity_threshold_check(item, extract_info["sample_name"], THRESHOLD['sampleName'])
+            if hasRef:
+                refInfo['sampleName']['hasRef'] = True
+                refInfo['sampleName']['refs'].append({
+                    "id": item.id,
+                    "content": item.bzLicense,
+                    "similarity": similarity
+                })
     result['refInfo'] = refInfo
     return result
 
@@ -276,7 +271,7 @@ def dup_check():
     if ocr is None:
         return jsonify({"error": "OCR save failed"})
     # 如果没有重复则保存
-    if isDup is False:
+    if result["isDup"] is False and (result["refInfo"]["sampleName"]["hasSame"] is True or result["refInfo"]["sampleName"]["hasRef"] is False):
         dupCheck = dao.DupCheck(None, ocr.id, extract_info['sc_license'], extract_info['sample_name'], extract_info['produce_date'],
                                 extract_info['bz_license'], None)
         dao.save_dup_check(dupCheck)
