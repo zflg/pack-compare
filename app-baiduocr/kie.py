@@ -261,7 +261,7 @@ class ScreenShotKie:
         Returns:
             sample name
         """
-        return self._extract_next_box_inline("样本名称")
+        return self._extract_next_box_inline("样品名称")
 
     def extract_produce_date(self):
         """
@@ -309,32 +309,24 @@ if __name__ == '__main__':
     ])
     print(kie.extract_expiration_time())
 
-    prediction = [{'probability': {'average': 0.9992135763, 'min': 0.9927974343, 'variance': 4.576815172e-06}, 'words': '10:239月26日',
-                   'location': {'top': 11, 'left': 47, 'width': 193, 'height': 32}},
-                  {'probability': {'average': 0.9999781847, 'min': 0.9999598265, 'variance': 3.370246304e-10}, 'words': '周四',
-                   'location': {'top': 12, 'left': 251, 'width': 59, 'height': 31}},
-                  {'probability': {'average': 0.9999492764, 'min': 0.9999064207, 'variance': 1.836614416e-09}, 'words': '45',
-                   'location': {'top': 20, 'left': 1481, 'width': 25, 'height': 16}},
-                  {'probability': {'average': 0.9994804263, 'min': 0.9994804263, 'variance': 0}, 'words': '<',
-                   'location': {'top': 86, 'left': 33, 'width': 28, 'height': 43}},
-                  {'probability': {'average': 0.9994714856, 'min': 0.9991490841, 'variance': 7.827444648e-08}, 'words': '样品填报',
-                   'location': {'top': 87, 'left': 722, 'width': 152, 'height': 41}},
-                  {'probability': {'average': 0.9997881055, 'min': 0.99935776, 'variance': 6.241887718e-08}, 'words': 'SC号：',
-                   'location': {'top': 306, 'left': 71, 'width': 94, 'height': 36}},
-                  {'probability': {'average': 0.9999607801, 'min': 0.9998807907, 'variance': 1.078768186e-09}, 'words': 'SC10634122207025',
-                   'location': {'top': 309, 'left': 411, 'width': 324, 'height': 32}},
-                  {'probability': {'average': 0.9996398091, 'min': 0.9983696342, 'variance': 4.064296775e-07}, 'words': '样本名称：',
-                   'location': {'top': 488, 'left': 70, 'width': 159, 'height': 38}},
-                  {'probability': {'average': 0.9999471307, 'min': 0.9998549223, 'variance': 3.236055202e-09}, 'words': '云南黑咖啡固体饮料',
-                   'location': {'top': 491, 'left': 410, 'width': 325, 'height': 38}},
-                  {'probability': {'average': 0.999538064, 'min': 0.9977224469, 'variance': 8.240952525e-07}, 'words': '生产日期：',
-                   'location': {'top': 673, 'left': 71, 'width': 157, 'height': 38}},
-                  {'probability': {'average': 0.9999939203, 'min': 0.9999756813, 'variance': 6.591136664e-11}, 'words': '2024-06-02',
-                   'location': {'top': 678, 'left': 409, 'width': 186, 'height': 33}},
-                  {'probability': {'average': 0.9994578362, 'min': 0.9970893264, 'variance': 1.131303293e-06}, 'words': '营业执照号：',
-                   'location': {'top': 857, 'left': 72, 'width': 193, 'height': 39}},
-                  {'probability': {'average': 0.9661802053, 'min': 0.6637955308, 'variance': 0.01015981846}, 'words': 'GB/T 29602',
-                   'location': {'top': 861, 'left': 410, 'width': 200, 'height': 38}},
-                  {'probability': {'average': 0.9982610941, 'min': 0.9966891408, 'variance': 2.471130756e-06}, 'words': '清除',
-                   'location': {'top': 1037, 'left': 800, 'width': 69, 'height': 33}}]
+    prediction = [{'probability': {'average': 0.999912858, 'min': 0.999912858, 'variance': 0}, 'words': '<',
+                   'location': {'top': 6, 'left': 8, 'width': 12, 'height': 20}},
+                  {'probability': {'average': 0.9991745949, 'min': 0.9988133907, 'variance': 1.987266955e-07}, 'words': '样品填报',
+                   'location': {'top': 10, 'left': 161, 'width': 62, 'height': 16}},
+                  {'probability': {'average': 0.9957418442, 'min': 0.9863060713, 'variance': 2.72710422e-05}, 'words': '*SC号：',
+                   'location': {'top': 81, 'left': 7, 'width': 46, 'height': 15}},
+                  {'probability': {'average': 0.9983363152, 'min': 0.9904436469, 'variance': 9.700843293e-06}, 'words': 'SSSDSFSFSD',
+                   'location': {'top': 82, 'left': 142, 'width': 92, 'height': 14}},
+                  {'probability': {'average': 0.9945171475, 'min': 0.9819681048, 'variance': 5.810968287e-05}, 'words': '*样品名称：',
+                   'location': {'top': 141, 'left': 8, 'width': 72, 'height': 15}},
+                  {'probability': {'average': 0.9999428988, 'min': 0.9998728037, 'variance': 1.745846134e-09}, 'words': '测试水花',
+                   'location': {'top': 141, 'left': 142, 'width': 62, 'height': 15}},
+                  {'probability': {'average': 0.9978286624, 'min': 0.9892298579, 'variance': 1.848502325e-05}, 'words': '生产日期：',
+                   'location': {'top': 201, 'left': 12, 'width': 68, 'height': 15}},
+                  {'probability': {'average': 0.9995748401, 'min': 0.9983609319, 'variance': 2.723874104e-07}, 'words': '2024-09-27',
+                   'location': {'top': 202, 'left': 142, 'width': 85, 'height': 14}},
+                  {'probability': {'average': 0.9982774854, 'min': 0.9902709723, 'variance': 1.284644804e-05}, 'words': '营业执照号：',
+                   'location': {'top': 259, 'left': 11, 'width': 85, 'height': 15}},
+                  {'probability': {'average': 0.9996767044, 'min': 0.9994748235, 'variance': 3.248312908e-08}, 'words': '232131231',
+                   'location': {'top': 261, 'left': 142, 'width': 79, 'height': 14}}]
     print(ScreenShotKie(prediction).run())

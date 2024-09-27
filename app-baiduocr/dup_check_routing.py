@@ -5,7 +5,6 @@
 # @function: the script is used to do something.
 # @version : V1
 import datetime
-import logging
 
 from flask import Blueprint, request, jsonify
 from client import baiduClient
@@ -226,6 +225,10 @@ def check(extract_info: dict):
             "refs": None
         },
     }
+    # 如果没有提取到sample_name则直接返回
+    if extract_info["sample_name"] is None:
+        result['refInfo'] = refInfo
+        return result
     # 将check_list里面的sample_name做distinct处理
     for item in check_list:
         if item.sampleName == extract_info["sample_name"]:
@@ -251,6 +254,16 @@ def check(extract_info: dict):
     return result
 
 
+def result_correct(result: dict):
+    return (result["isDup"] is False
+            and (result["refInfo"]["sampleName"]["hasSame"] is True
+                 or result["refInfo"]["sampleName"]["hasRef"] is False)
+            and (result["content"]["scLicense"] is not None
+                 and result["content"]["sampleName"] is not None
+                 and result["content"]["produceDate"] is not None
+                 and result["content"]["bzLicense"] is not None))
+
+
 @dup_check_bp.route('/ocr/dup-check', methods=['POST'])
 def dup_check():
     # 从请求中获取JSON数据
@@ -261,11 +274,11 @@ def dup_check():
     output_url = get_output_url(input_url)
     # 百度ocr预测
     prediction = baiduClient.accuracy_ocr(base64_screenshot, detect_direction='false', multidirectional_recognize='false')
-    logging.info(f"prediction: {prediction}")
+    print(f"prediction: {prediction}")
     baiduClient.draw_ocr_box_txt(f'{NGINX_ROOT}/{input_url}', f'{NGINX_ROOT}/{output_url}', prediction)
     extract_info = ScreenShotKie(prediction).run()
-    logging.info(f"extract_info: {extract_info}")
-    if extract_info is None or extract_info["bz_license"] is None or extract_info["sample_name"] is None:
+    print(f"extract_info: {extract_info}")
+    if extract_info is None:
         return jsonify({"error": "OCR failed"})
     result = check(extract_info)
     # 保存结果
@@ -276,7 +289,7 @@ def dup_check():
     if ocr is None:
         return jsonify({"error": "OCR save failed"})
     # 如果没有重复则保存
-    if result["isDup"] is False and (result["refInfo"]["sampleName"]["hasSame"] is True or result["refInfo"]["sampleName"]["hasRef"] is False):
+    if result_correct(result):
         dupCheck = dao.DupCheck(None, ocr.id, extract_info['sc_license'], extract_info['sample_name'], extract_info['produce_date'],
                                 extract_info['bz_license'], None)
         dao.save_dup_check(dupCheck)
