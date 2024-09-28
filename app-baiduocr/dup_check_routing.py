@@ -171,7 +171,7 @@ def check(extract_info: dict):
     # check_list按照时间倒叙
     check_list.sort(key=lambda x: x.createTime, reverse=True)
     # 检查是否有重复，只检查三个月内的数据
-    check_time = datetime.datetime.now() - datetime.timedelta(days=90)
+    check_time = (datetime.datetime.now() - datetime.timedelta(days=90)).strftime("%Y-%m-%d %H:%M:%S")
     for item in check_list:
         if item.createTime < check_time:
             break

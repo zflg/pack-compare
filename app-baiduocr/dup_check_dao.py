@@ -127,7 +127,7 @@ def select_ocr_list(ocr: DupCheckOcr = None):
         return result
     for ocr in ocr_list:
         result.append(DupCheckOcr(ocr['id'], ocr['sc_license'], ocr['sample_name'], ocr['produce_date'], ocr['bz_license'],
-                                  ocr['screenshot_url'], ocr['screenshot_output_url'], ocr['is_dup'], time.strftime("%Y-%m-%d %H:%M:%S", ocr['create_time'])))
+                                  ocr['screenshot_url'], ocr['screenshot_output_url'], ocr['is_dup'], ocr['create_time'].strftime("%Y-%m-%d %H:%M:%S")))
     return result
 
 
@@ -150,7 +150,7 @@ def get_ocr_by_id(ocr_id: int):
     if ocr is None:
         return None
     return DupCheckOcr(ocr['id'], ocr['sc_license'], ocr['sample_name'], ocr['produce_date'], ocr['bz_license'],
-                       ocr['screenshot_url'], ocr['screenshot_output_url'], ocr['is_dup'], time.strftime("%Y-%m-%d %H:%M:%S", ocr['create_time']))
+                       ocr['screenshot_url'], ocr['screenshot_output_url'], ocr['is_dup'], ocr['create_time'].strftime("%Y-%m-%d %H:%M:%S"))
 
 
 def select_dup_check_list(dupCheck: DupCheck = None):
@@ -186,7 +186,7 @@ def select_dup_check_list(dupCheck: DupCheck = None):
         return result
     for dup_check in dup_check_list:
         result.append(DupCheck(dup_check['id'], dup_check['ocr_id'], dup_check['sc_license'], dup_check['sample_name'], dup_check['produce_date'],
-                               dup_check['bz_license'], dup_check['create_time']))
+                               dup_check['bz_license'], dup_check['create_time'].strftime("%Y-%m-%d %H:%M:%S")))
     return result
 
 
