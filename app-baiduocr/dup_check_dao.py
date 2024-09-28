@@ -7,6 +7,7 @@
 import pymysql
 import setting
 import logging
+import time
 
 connection = pymysql.connect(
     host=setting.MYSQL_HOST,
@@ -126,7 +127,7 @@ def select_ocr_list(ocr: DupCheckOcr = None):
         return result
     for ocr in ocr_list:
         result.append(DupCheckOcr(ocr['id'], ocr['sc_license'], ocr['sample_name'], ocr['produce_date'], ocr['bz_license'],
-                                  ocr['screenshot_url'], ocr['screenshot_output_url'], ocr['is_dup'], ocr['create_time']))
+                                  ocr['screenshot_url'], ocr['screenshot_output_url'], ocr['is_dup'], time.strftime("%Y-%m-%d %H:%M:%S", ocr['create_time'])))
     return result
 
 
@@ -149,7 +150,7 @@ def get_ocr_by_id(ocr_id: int):
     if ocr is None:
         return None
     return DupCheckOcr(ocr['id'], ocr['sc_license'], ocr['sample_name'], ocr['produce_date'], ocr['bz_license'],
-                       ocr['screenshot_url'], ocr['screenshot_output_url'], ocr['is_dup'], ocr['create_time'])
+                       ocr['screenshot_url'], ocr['screenshot_output_url'], ocr['is_dup'], time.strftime("%Y-%m-%d %H:%M:%S", ocr['create_time']))
 
 
 def select_dup_check_list(dupCheck: DupCheck = None):
